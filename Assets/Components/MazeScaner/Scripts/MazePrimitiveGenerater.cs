@@ -148,16 +148,15 @@ namespace Components.MazeScaner.Scripts
                     if (adjcentCrossesA.Count == 0 || adjcentCrossesB.Count == 0)
                     {
                         var noneAdjcentPoint = adjcentCrossesA.Count == 0 ? pointA : pointB;
-                        var hasAdjcentPoint = noneAdjcentPoint == pointA ? pointB : pointA;
-                        var adjcentCross = hasAdjcentPoint == pointA ? adjcentCrossesA[0] : adjcentCrossesB[0];
+                        var adjcentCross = adjcentCrossesA.Count == 0 ? adjcentCrossesB[0] : adjcentCrossesA[0];
                         
                         _mazeConnects.Add(new MazeConnect
                         {
                             CellType = primitive.CellType,
                             PointA = adjcentCross.Point,
                             HeightA = adjcentCross.Height,
-                            PointB = GetOppsiteAdjcent(noneAdjcentPoint, adjcentCross.Point),
-                            HeightB = adjcentCross.Height,
+                            PointB = GetOppsiteAdjcent(adjcentCross.Point, noneAdjcentPoint),
+                            HeightB = adjcentCross.Height
                         });
                     }
                     else
@@ -196,7 +195,7 @@ namespace Components.MazeScaner.Scripts
                 {
                     var newPos = pos + t;
                     if (_data[(int) newPos.x, (int) newPos.y] == CellType.WALL_CORNER)
-                        result.Add(_mazeCorsses.Single( x => x.Point == newPos));
+                        result.Add(_mazeCorsses.Single( x => Vector2.Distance(x.Point, newPos) <= 0.01f));
                 }
             }else if (cellType == CellType.ROAD)
             {
@@ -204,7 +203,7 @@ namespace Components.MazeScaner.Scripts
                 {
                     var newPos = pos + t;
                     if (_data[(int) newPos.x, (int) newPos.y] == CellType.CROSS)
-                        result.Add(_mazeCorsses.Single(x => x.Point == newPos));
+                        result.Add(_mazeCorsses.Single( x => Vector2.Distance(x.Point, newPos) <= 0.01f));
                 }
             }
 
@@ -235,20 +234,6 @@ namespace Components.MazeScaner.Scripts
             return result;
         }
 
-        private float GetNearestCrossHeight(CellType cellType,Vector2 pos)
-        {
-            float nearestHeight = float.MaxValue;
-            Vector2 result = Vector2.zero;
-
-            for (int i = 0; i < offset.Count; i++)
-            {
-                var newPos = pos + offset[i];
-                
-                
-            }
-
-            return nearestHeight;
-        }
 
         private Vector2 GetUnvisitedAdjcent(CellType cellType, Vector2 pos, bool[,] visited)
         {
